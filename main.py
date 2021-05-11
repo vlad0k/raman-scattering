@@ -2,7 +2,7 @@ from math import sqrt, exp, cos, pi
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
-from numba import jit, cuda
+from cmath import exp as cexp
 
 
 i = 1j
@@ -14,7 +14,7 @@ wave_length = 2.4 * 10**-12
 
 # constants
 
-e = 4.8 * 10**-10 
+e = -4.8 * 10**-10 
 c = 2.9979 * 10**10
 m = 9.1094 * 10**-28
 
@@ -25,6 +25,7 @@ gamma0 = 4
 uii = c * sqrt(1 - (1 / gamma0)**2)
 w = 1 * 10**12 # -s # частота волны
 Omega = 10 ** 11 # -s
+delta_w = Omega / 5
 T = 2 * pi / w
 
 t0 = 0
@@ -39,6 +40,9 @@ Eii = 10**-4
 
 # equations
 
+def fi(z): 
+  kii * z
+
 def z_n(z0, t): # z невозмущенное
   return z0 + uii * (t - t0)
   
@@ -48,13 +52,22 @@ def E(z,t): # wave field
 def W (u): # relativistic kinetic energy u - current speed 
   return (m * c**2) / sqrt(1 - u**2 / c**2) - m * c**2
 
+
+def z_wawe(z):
+  return (( ((e / m) * beta * gamma0**-3 * 0.5 * Eii) /( (-i * w + delta_w + kii * uii)**2 + Omega**2)) * 2* cexp(i*kii*z)).real * 2
+
+
+def u_wawe(z):
+  return (( ((e / m) * beta * gamma0**-3 * 0.5 * Eii * (-i * w + delta_w - i * kii * uii)) /( (-i * w + delta_w + kii * uii)**2 + Omega**2)) * 2* cexp(i*kii*z)).real * 2
+
+
 def system_solve(z0, t_list):
   def F(s,t): # s - vector [z, v]
     dzdt = s[1]
     dvdt = (e / m) * (beta ** 2) * ((1 - (s[1] / c )** 2) ** 1.5) * E(s[0], t) - (Omega ** 2) * (s[0] - z_n(z0,t))
     return [dzdt, dvdt]
 
-  s0=[z0, uii]
+  s0=[z_wawe(z0), u_wawe(z0)]
   s = odeint(F, s0, t_list, tcrit=4)
   return s
 
@@ -63,7 +76,9 @@ def find_electron_energy(z0, T):  #z0 - зависит от положения �
   return [W(u) for u in U]
 
 
+
 # start!!!
+
 
 Z = np.linspace(0, lmbda, n, endpoint=False) # generate z0 for 1000 electrons
 T_list = np.linspace(t0,t1, n, endpoint=False) # 1s interval for 30s 
