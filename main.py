@@ -14,11 +14,11 @@ wave_length = 2.4 * 10**-12
 
 # constants
 
-e = -4.8 * 10**-10 
+e = 4.8 * 10**-10 
 c = 2.9979 * 10**10
 m = 9.1094 * 10**-28
 
-beta = 1 # берем 1
+beta =1 # берем 1
 
 gamma0 = 4
 
@@ -97,7 +97,10 @@ for t in T_list:
 E = [np.mean(i) for i in np.array(E0).transpose()] # начальная энергия поля в каждый момент времени
 
 
-y = [-(E[i] - W_mean[i]) for i in range(len(W_mean))] # изменение энергии поля, где (0.5 * e * E[i]) - начальная энергия, 
+y = [abs(W_mean[i] - W_mean[0]) for i in range(len(W_mean))] # изменение энергии поля, где (0.5 * e * E[i]) - начальная энергия, 
+
+plt.xlabel("Time")
+plt.ylabel("Energy of electrons bundle")
 
 plt.plot(T_list,y)
 plt.show()
